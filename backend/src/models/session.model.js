@@ -14,6 +14,9 @@ const sessionSchema=new Schema({
         type:String,
         required:true
     },
+    ipAddress:{
+        type:String,
+    },
     revoked:{
         type:Boolean,
         default:false,
