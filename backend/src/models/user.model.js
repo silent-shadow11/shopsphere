@@ -1,6 +1,5 @@
 import mongoose, { Schema } from "mongoose";
 
-
 const UserSchema = new Schema(
   {
     username: {
@@ -8,6 +7,7 @@ const UserSchema = new Schema(
       require: true,
       trim: true,
       index: true,
+      unique:true
     },
     email: {
       type: String,
