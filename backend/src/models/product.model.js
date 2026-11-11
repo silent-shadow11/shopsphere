@@ -60,7 +60,7 @@ const ProductSchema = new Schema(
       type: Boolean,
       default: true,
     },
-    sku: {
+    sku: { // unique item
       type: String,
       required: true,
     },
