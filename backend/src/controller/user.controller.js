@@ -47,4 +47,16 @@ const generatedRefreshToken = async (req, user) => {
 const registerUser = asyncHandler(async (req,res) => {
     const {username,email,password,fullname,role}=req.body
     
+    if([username,email,password,fullname,role].some((field)=>{
+      field?.trim()===""
+    })){
+      throw new Apierror(400,"All field are required...")
+    }
+
+    const avatarLocalPath=req?.files?.[0]?.path
+    if(avatarLocalPath){
+      
+    }
+
+    
 });

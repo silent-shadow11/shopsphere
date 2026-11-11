@@ -26,6 +26,7 @@ const UserSchema = new Schema(
     },
     avater: {
       type: String,
+      default:"image/default_avatar.jpg"
     },
     role: {
       type: String,
