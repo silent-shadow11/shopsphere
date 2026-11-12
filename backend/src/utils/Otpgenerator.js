@@ -1,3 +1,5 @@
+// remaining rate limit
+
 import { OtpModel } from "../models/otp.model";
 import nodemailer from "nodemailer";
 import { randomInt } from "crypto";
@@ -115,6 +117,7 @@ export const Otpgenerator = async (email, prevAttempt = 0) => {
   `,
     });
     console.log("Message sent: %s", info.messageId);
+    return OTP;
   } catch (err) {
     if (OTP != null) {
       try {

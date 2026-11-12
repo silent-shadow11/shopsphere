@@ -9,6 +9,7 @@ import crypto from "crypto";
 import { randomInt } from "crypto";
 import { OtpModel } from "../models/otp.model.js";
 import nodemailer from "nodemailer";
+import { Otpgenerator } from "../utils/Otpgenerator.js";
 
 const generatedAcessToken = async (user) => {
   const AcessToken = jwt.sign(
@@ -86,6 +87,11 @@ const registerUser = asyncHandler(async (req, res) => {
   }
 
   const PasswordHash = TokenHash(password);
+  let prevAttempt=0;
+  const GenerateOtp= await Otpgenerator(email,prevAttempt)
+  if(GenerateOtp!=null){
+    
+  }else{}
 
   const user = User.create({
     username: username,
