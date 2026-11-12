@@ -1,8 +1,14 @@
-import { Session } from "../models/session.model";
-import { User } from "../models/user.model";
-import { Apierror } from "../utils/ApiError";
+import { Session } from "../models/session.model.js";
+import { User } from "../models/user.model.js";
+import { Apierror } from "../utils/ApiError.js";
 import jwt from "jsonwebtoken";
-import { asyncHandler } from "../utils/asyncHandler";
+import { asyncHandler } from "../utils/asyncHandler.js";
+import { UploadOnCloudinary } from "../utils/cloudinary.js";
+import fs from "fs";
+import crypto from "crypto";
+import { randomInt } from "crypto";
+import { OtpModel } from "../models/otp.model.js";
+import nodemailer from "nodemailer";
 
 const generatedAcessToken = async (user) => {
   const AcessToken = jwt.sign(
@@ -44,19 +50,55 @@ const generatedRefreshToken = async (req, user) => {
   return hashedToken;
 };
 
-const registerUser = asyncHandler(async (req,res) => {
-    const {username,email,password,fullname,role}=req.body
-    
-    if([username,email,password,fullname,role].some((field)=>{
-      field?.trim()===""
-    })){
-      throw new Apierror(400,"All field are required...")
-    }
+const TokenHash = async (token) => {
+  return crypto.createHash("sha256").update(token).digest("hex");
+};
 
-    const avatarLocalPath=req?.files?.[0]?.path
-    if(avatarLocalPath){
-      
-    }
 
-    
+const registerUser = asyncHandler(async (req, res) => {
+  const { username, email, password, fullname, role } = req.body;
+
+  if (
+    [username, email, password, fullname, role].some((field) => {
+      field?.trim() === "";
+    })
+  ) {
+    throw new Apierror(400, "All field are required...");
+  }
+
+  const avatarLocalPath = req?.files?.[0]?.path;
+
+  //check existed user
+  const existUser = await User.findOne({
+    $or: [{ username }, { email }],
+  });
+
+  if (existUser) {
+    if (fs.existsSync(avatarLocalPath)) {
+      fs.unlinkSync(avatarLocalPath);
+    }
+    throw new Apierror(409, "Username or email already exits");
+  }
+
+  let UploadImageResponse = null;
+  if (avatarLocalPath) {
+    UploadImageResponse = await UploadOnCloudinary(avatarLocalPath, avatar);
+  }
+
+  const PasswordHash = TokenHash(password);
+
+  const user = User.create({
+    username: username,
+    password: PasswordHash,
+    email: email,
+    fullname: fullname,
+    avater: UploadImageResponse.secure_url || undefined,
+    role: role || "user",
+  });
 });
+
+export {
+  generatedAcessToken,
+  generatedRefreshToken,
+  TokenHash
+}
