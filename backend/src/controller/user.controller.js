@@ -95,11 +95,14 @@ const registerUser = asyncHandler(async (req, res) => {
       isverified:false
     });
     req.user=user
-    return ApiResponse(200,"User Create Successfully")
+    return new ApiResponse(200,"User Create Successfully")
   } catch (error) {
     throw new Apierror(500,"database Error",error)
   }
 });
+
+
+
 
 export {
   generatedAcessToken,
