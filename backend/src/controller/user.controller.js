@@ -6,10 +6,7 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { UploadOnCloudinary } from "../utils/cloudinary.js";
 import fs from "fs";
 import crypto from "crypto";
-import { randomInt } from "crypto";
-import { OtpModel } from "../models/otp.model.js";
-import nodemailer from "nodemailer";
-import { Otpgenerator } from "../utils/Otpgenerator.js";
+import { ApiResponse } from "../utils/ApiResponse.js";
 
 const generatedAcessToken = async (user) => {
   const AcessToken = jwt.sign(
@@ -42,7 +39,7 @@ const generatedRefreshToken = async (req, user) => {
   );
 
   const hashedToken = crypto
-    .createhash("sha256")
+    .createHash("sha256")
     .update(refreshToken)
     .digest("hex");
   await session.updateOne({
@@ -83,28 +80,30 @@ const registerUser = asyncHandler(async (req, res) => {
 
   let UploadImageResponse = null;
   if (avatarLocalPath) {
-    UploadImageResponse = await UploadOnCloudinary(avatarLocalPath, avatar);
+    UploadImageResponse = await UploadOnCloudinary(avatarLocalPath,"avatar");
   }
 
-  const PasswordHash = TokenHash(password);
-  let prevAttempt=0;
-  const GenerateOtp= await Otpgenerator(email,prevAttempt)
-  if(GenerateOtp!=null){
-    
-  }else{}
-
-  const user = User.create({
-    username: username,
-    password: PasswordHash,
-    email: email,
-    fullname: fullname,
-    avater: UploadImageResponse.secure_url || undefined,
-    role: role || "user",
-  });
+  const PasswordHash =await TokenHash(password);
+  try {
+    const user = await User.create({
+      username: username,
+      password: PasswordHash,
+      email: email,
+      fullname: fullname,
+      avater: UploadImageResponse.secure_url || undefined,
+      role: role || "user",
+      isverified:false
+    });
+    req.user=user
+    return ApiResponse(200,"User Create Successfully")
+  } catch (error) {
+    throw new Apierror(500,"database Error",error)
+  }
 });
 
 export {
   generatedAcessToken,
   generatedRefreshToken,
-  TokenHash
+  TokenHash,
+  registerUser
 }
