@@ -8,7 +8,6 @@ const sessionSchema=new Schema({
     },
     refreshTokenHash:{
         type:String,
-        required:true   
     },
     userAgent:{
         type:String,
