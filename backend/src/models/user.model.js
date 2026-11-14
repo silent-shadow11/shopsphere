@@ -7,7 +7,7 @@ const UserSchema = new Schema(
       require: true,
       trim: true,
       index: true,
-      unique:true
+      unique: true,
     },
     email: {
       type: String,
@@ -26,23 +26,24 @@ const UserSchema = new Schema(
     },
     avater: {
       type: String,
-      default:"image/default_avatar.jpg"
+      default: "image/default_avatar.jpg",
+    },
+    avater_publicId: {
+      type: String,
     },
     role: {
       type: String,
       enum: ["user", "admin"],
       default: "user",
     },
-    refreshToken:{
-        type:String,
-
+    refreshToken: {
+      type: String,
     },
-    isverified:{
-        type:Boolean
-    }
+    isverified: {
+      type: Boolean,
+    },
   },
   { timestamps: true },
 );
 
-
-export const User=mongoose.model("User",UserSchema)
+export const User = mongoose.model("User", UserSchema);

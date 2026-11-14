@@ -7,11 +7,14 @@ import {
   logoutUser,
   refreshAccessToken,
   registerUser,
-} from "../controller/user.controller.js";
+} from "../controller/auth.controller.js";
 import { upload } from "../middleware/multer.middleware.js";
 import { AcessTokenverifyJWT } from "../middleware/auth.middleware.js";
+import { updateAccountDetails, updateUserAvatar } from "../controller/user.controller.js";
 
 const router = Router();
+
+//Auth field ......
 
 router.route("/register").post(
   upload.fields([
@@ -34,5 +37,24 @@ router
   .patch(AcessTokenverifyJWT, changeCurrentPassword);
 
 router.route("/getCurrentUser").get(AcessTokenverifyJWT, getCurrentUser);
+
+// user field .....
+
+router.route("/UpdateAccountDetails").post(AcessTokenverifyJWT,updateAccountDetails)
+
+router.route("/UpdateAvatar").post(upload.fields([
+    {
+        name:"avatar",
+        maxCount:1
+    }
+]),AcessTokenverifyJWT,updateUserAvatar)
+
+
+
+
+
+
+
+
 
 export default router;
