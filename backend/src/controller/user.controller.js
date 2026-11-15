@@ -1,3 +1,4 @@
+import { Product } from "../models/product.model.js";
 import { User } from "../models/user.model.js";
 import { Apierror } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
@@ -43,8 +44,6 @@ const updateAccountDetails = asyncHandler(async (req, res) => {
 
 const updateUserAvatar = asyncHandler(async (req, res) => {
   const avatarLocalPath = req?.files?.avatar?.[0]?.path;
-  
-
 
   if (!avatarLocalPath) {
     throw new Apierror(404, "Avatar files are required ...");
@@ -55,8 +54,6 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
   if (avatarLocalPath) {
     UploadImageResponse = await UploadOnCloudinary(avatarLocalPath, "avatar");
   }
- 
-  
 
   if (!UploadImageResponse?.secure_url) {
     throw new Apierror(500, "avatar failed");
@@ -85,6 +82,44 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, user, "Image Upload sucessfully ..."));
 });
 
+const UpdateRating = asyncHandler(async (req, res) => {
+  const { productId } = req?.params;
+  let { rating } = req?.body;
+  if (!productId) {
+    throw new Apierror(401, "ProductId is required..");
+  }
+
+  rating = Number(rating);
+
+  if (
+    rating === undefined ||
+    rating === null ||
+    rating === "" ||
+    !Number.isFinite(rating) ||
+    rating < 1 ||
+    rating > 5
+  ) {
+    throw new Apierror(401, "Rating is required and should be between 1 to 5");
+  }
+  const product = await Product.findById(productId);
+
+  if (!product) {
+    throw new Apierror(404, "product not found..");
+  }
+
+  const Prevnumviews = product.numReviews;
+  product.numReviews = Prevnumviews + 1;
+
+  const Prevrating = product.rating;
+  product.rating = (Prevrating * Prevnumviews + rating) / (Prevnumviews + 1);
+
+  await product.save();
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, product, "Rating update sucessfully..."));
+});
 
 
-export { updateAccountDetails, updateUserAvatar };
+
+export { updateAccountDetails, updateUserAvatar, UpdateRating };

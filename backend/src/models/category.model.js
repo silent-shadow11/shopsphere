@@ -12,28 +12,28 @@ const CategorySchema = new Schema(
     },
     description: {
       type: String,
-      required: true,
+      default: "This is new Category..",
     },
     image: {
       url: {
         type: String,
-        required: true,
+        default: "image/default_category.jpg",
       },
       public_id: {
         type: String,
-        required: true,
+        default: null,
       },
     },
     isactive: {
       type: Boolean,
     },
-    createdby:{
-        type:Schema.Types.ObjectId,
-        ref:"User",
-        required:true
-    }
+    createdby: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
   },
   { timestamps: true },
 );
 
-export const Category=mongoose.model("Category",CategorySchema)
+export const Category = mongoose.model("Category", CategorySchema);
