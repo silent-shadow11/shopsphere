@@ -5,7 +5,7 @@ import nodemailer from "nodemailer";
 import { randomInt } from "crypto";
 import { Apierror } from "./ApiError";
 import crypto from "crypto";
-export const Otpgenerator = async (email, prevAttempt = 0) => {
+const Otpgenerator = async (email, prevAttempt = 0) => {
   let prevOTP;
   try {
     prevOTP = await OtpModel.findOne({ email: email });
@@ -129,3 +129,5 @@ export const Otpgenerator = async (email, prevAttempt = 0) => {
     throw new Apierror(500, `Error while sending mail: ${err}`);
   }
 };
+
+export { Otpgenerator };
