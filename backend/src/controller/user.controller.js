@@ -1,3 +1,5 @@
+import { Cart } from "../models/cart.model.js";
+import { Order } from "../models/order.model.js";
 import { Product } from "../models/product.model.js";
 import { User } from "../models/user.model.js";
 import { Apierror } from "../utils/ApiError.js";
@@ -120,6 +122,37 @@ const UpdateRating = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, product, "Rating update sucessfully..."));
 });
 
+const getmyOrder = asyncHandler(async (req, res) => {
+  const user = req?.user;
+  if (!user) {
+    throw new Apierror(401, "user is required..");
+  }
 
+  const myorder = await Order.find({
+    user: user._id,
+  }).sort({ createdAt: -1 });
 
-export { updateAccountDetails, updateUserAvatar, UpdateRating };
+  return res
+    .status(200)
+    .json(new ApiResponse(200, myorder, "user order fetch sucessfully..."));
+});
+
+const getCart = asyncHandler(async (req, res) => {
+  const user = req?.user;
+  if (!user) {
+    throw new Apierror(401, "user is required...");
+  }
+  const cart = await Cart.find({ user: user._id });
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, cart, "user cart fetch sucessfully.."));
+});
+
+export {
+  updateAccountDetails,
+  updateUserAvatar,
+  UpdateRating,
+  getmyOrder,
+  getCart,
+};

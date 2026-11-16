@@ -11,6 +11,8 @@ import {
 import { upload } from "../middleware/multer.middleware.js";
 import { AcessTokenverifyJWT } from "../middleware/auth.middleware.js";
 import {
+  getCart,
+  getmyOrder,
   updateAccountDetails,
   UpdateRating,
   updateUserAvatar,
@@ -68,6 +70,10 @@ router
 
 router.route("/getallproduct").get(AcessTokenverifyJWT, getAllProduct);
 
-router.route("/getallCategory").post(AcessTokenverifyJWT, getAllCategory);
+router.route("/getallCategory").get(AcessTokenverifyJWT, getAllCategory);
+
+router.route("/getallorder").get(AcessTokenverifyJWT, getmyOrder);
+
+router.route("/getcart").get(AcessTokenverifyJWT, getCart);
 
 export default router;
