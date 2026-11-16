@@ -9,4 +9,3 @@ const router = Router();
 
 router.route("/Createcategory").post(AcessTokenverifyJWT, CreateCategory);
 
-router.route("/getallCategory").post(AcessTokenverifyJWT, getAllCategory);

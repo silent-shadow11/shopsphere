@@ -13,7 +13,7 @@ import {
 import { AcessTokenverifyJWT } from "../middleware/auth.middleware.js";
 import { UpdateRating } from "../controller/user.controller.js";
 
-const router = Router();
+export const router = Router();
 router
   .route("/Addproduct")
   .post(AcessTokenverifyJWT, upload.array("ProductImage", 5), productAdd);
@@ -38,10 +38,5 @@ router
 
 router.route("/Updatestock/:productId").post(AcessTokenverifyJWT, updateStock);
 
-router
-  .route("/UpdateRating/:productId")
-  .post(AcessTokenverifyJWT, UpdateRating);
-
-router.route("/getallproduct").get(AcessTokenverifyJWT, getAllProduct);
 
 export default router;
