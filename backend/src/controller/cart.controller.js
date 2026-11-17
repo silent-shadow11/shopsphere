@@ -175,4 +175,12 @@ const getcart = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, cart, "cart fetch sucessfully..."));
 });
 
-export { addTocart, removeTocart, updateTocart, getcart };
+const clearcart = asyncHandler(async (req, res) => {
+  const user = req?.user;
+
+  const cart = await Cart.findOneAndDelete({ user: user._id });
+  return res
+    .status(200)
+    .json(new ApiResponse(200, cart, "All cart delete Sucessfully.."));
+});
+export { addTocart, removeTocart, updateTocart, getcart, clearcart };

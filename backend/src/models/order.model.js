@@ -65,7 +65,7 @@ const OderSchema = new Schema(
     },
     orderStatus:{
         type:String,
-        required:true
+        default:"Ordered"
     }
   },
   { timestamps: true },
