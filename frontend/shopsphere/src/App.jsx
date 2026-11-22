@@ -1,4 +1,3 @@
-i
 import './App.css'
 
 function App() {
