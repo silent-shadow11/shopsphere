@@ -1,9 +1,9 @@
 //create update delete add product delete product
 
-import { Category } from "../models/category.model";
-import { Apierror } from "../utils/ApiError";
-import { ApiResponse } from "../utils/ApiResponse";
-import { asyncHandler } from "../utils/asyncHandler";
+import { Category } from "../models/category.model.js";
+import { Apierror } from "../utils/ApiError.js";
+import { ApiResponse } from "../utils/ApiResponse.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
 import slugify from "slugify";
 
 const CreateCategory = asyncHandler(async (req, res) => {

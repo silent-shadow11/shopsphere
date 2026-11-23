@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { AcessTokenverifyJWT } from "../middleware/auth.middleware";
+import { AcessTokenverifyJWT } from "../middleware/auth.middleware.js";
 import {
   CreateCategory,
 } from "../controller/category.controller.js";
@@ -7,4 +7,6 @@ import {
 const router = Router();
 
 router.route("/Createcategory").post(AcessTokenverifyJWT, CreateCategory);
+
+export default router
 

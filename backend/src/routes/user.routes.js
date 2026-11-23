@@ -17,7 +17,6 @@ import {
   UpdateRating,
   updateUserAvatar,
 } from "../controller/user.controller.js";
-import { router } from "./admin.routes.js";
 import { getAllProduct } from "../controller/seller_product.controller.js";
 import { getAllCategory } from "../controller/category.controller.js";
 

@@ -13,16 +13,7 @@ import Order from './components/Home/user/Order.jsx'
 function App() {
   return (
     <>
-      <Navbar />
-      <Home/>
-      <Cart />
-      <Order />
-      <AddProduct />
-      <Signin />
-      <Login />
-      <Signout />
-      <DeleteAccount />
-      <Footer />
+    <Home/>
     </>
   )
 }
