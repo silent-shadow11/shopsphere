@@ -6,9 +6,17 @@ import adminRouter from "./routes/admin.routes.js";
 import categoryRouter from "./routes/category.routes.js";
 import orderRouter from "./routes/order.routes.js";
 import cartRouter from "./routes/cart.route.js";
+import cors from "cors";
+import errorHandler from "./middleware/error.middleware.js";
 
 const app = express();
 
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+  }),
+);
 app.use(express.json());
 app.use(morgan("dev"));
 app.use(express.urlencoded({ extended: true, limit: "16kb" }));
@@ -20,5 +28,7 @@ app.use("/api/v1/admin", adminRouter);
 app.use("/api/v1/admin/category", categoryRouter);
 app.use("/api/v1/order", orderRouter);
 app.use("/api/v1/cart", cartRouter);
+
+app.use(errorHandler)
 
 export { app };

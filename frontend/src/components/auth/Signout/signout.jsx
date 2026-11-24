@@ -1,6 +1,7 @@
 function Signout() {
   function handleSignout() {
     // Connect this action to the authentication logout flow when it is available.
+    const response=await api.
   }
 
   return (

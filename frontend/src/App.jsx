@@ -9,11 +9,13 @@ import AdminHome from './components/Home/admin/AdminHome.jsx'
 import AddProduct from './components/Home/admin/addProduct.jsx'
 import Cart from './components/Home/user/Cart.jsx'
 import Order from './components/Home/user/Order.jsx'
+import { ToastContainer } from "react-toastify";
 
 function App() {
   return (
     <>
-    <Home/>
+    <ToastContainer/>
+    <Signout/>
     </>
   )
 }

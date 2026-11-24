@@ -1,4 +1,7 @@
 import { useEffect, useState } from "react";
+import api from "../../../lib/axios";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css"
 
 function Signin() {
   const fieldClassName =
@@ -8,7 +11,7 @@ function Signin() {
   const [username, setUsername] = useState(null);
   const [email, setEmail] = useState(null);
   const [password, setPassword] = useState(null);
-  const [fulname, setfullname] = useState(null);
+  const [fullname, setFullname] = useState("");
   const [role, setRole] = useState("user");
 
   useEffect(() => {
@@ -22,8 +25,24 @@ function Signin() {
     return () => URL.revokeObjectURL(previewUrl);
   }, [avatarFile]);
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault();
+
+    const formData = new FormData();
+
+    formData.append("fullname", fullname);
+    formData.append("username", username);
+    formData.append("email", email);
+    formData.append("password", password);
+    formData.append("avatar", avatarFile);
+    formData.append("role", role);
+    
+    try {
+      const response = await api.post("/users/register", formData);
+      toast.success("Signin sucessfully...")
+    } catch (error) {
+      toast.error(error.response?.data?.message || error.message || "something went wrong!!")
+    }
   }
 
   return (
@@ -67,9 +86,27 @@ function Signin() {
           >
             <div>
               <label
+                htmlFor="fullname"
+                className="text-sm font-medium text-stone-700"
+              >
+                Full name
+              </label>
+              <input
+                className={fieldClassName}
+                id="fullname"
+                name="fullname"
+                value={fullname}
+                onChange={(event) => setFullname(event.target.value)}
+                type="text"
+                autoComplete="name"
+                placeholder="Your full name"
+                required
+              />
+            </div>
+            <div>
+              <label
                 htmlFor="username"
                 className="text-sm font-medium text-stone-700"
-                
               >
                 Username
               </label>
@@ -78,7 +115,7 @@ function Signin() {
                 id="username"
                 name="username"
                 value={username}
-                onChange={(e)=>setUsername(e.target.value)}
+                onChange={(e) => setUsername(e.target.value)}
                 type="text"
                 autoComplete="username"
                 placeholder="Your username"
@@ -98,7 +135,7 @@ function Signin() {
                 name="email"
                 type="email"
                 value={email}
-                onChange={(e)=>setEmail(e.target.value)}
+                onChange={(e) => setEmail(e.target.value)}
                 autoComplete="email"
                 placeholder="you@example.com"
                 required
@@ -116,7 +153,7 @@ function Signin() {
                 id="password"
                 name="password"
                 value={password}
-                onChange={(e)=>setPassword(e.target.value)}
+                onChange={(e) => setPassword(e.target.value)}
                 type="password"
                 autoComplete="current-password"
                 placeholder="Enter your password"
@@ -162,7 +199,7 @@ function Signin() {
                 name="role"
                 defaultValue="user"
                 value={role}
-                onChange={(e)=>setRole(e.target.value)}
+                onChange={(e) => setRole(e.target.value)}
                 required
               >
                 <option value="user">User</option>
