@@ -9,6 +9,7 @@ import cartRouter from "./routes/cart.route.js";
 import cors from "cors";
 import errorHandler from "./middleware/error.middleware.js";
 
+
 const app = express();
 
 app.use(
@@ -22,6 +23,7 @@ app.use(morgan("dev"));
 app.use(express.urlencoded({ extended: true, limit: "16kb" }));
 app.use(cookieParser());
 app.use(express.static("public"));
+
 
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/admin", adminRouter);

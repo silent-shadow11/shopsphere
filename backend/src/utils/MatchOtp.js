@@ -1,5 +1,5 @@
-import { OtpModel } from "../models/otp.model";
-import { Apierror } from "./ApiError";
+import { OtpModel } from "../models/otp.model.js";
+import { Apierror } from "./ApiError.js";
 import crypto from "crypto";
 
 export const isMatched = async (req) => {
@@ -36,3 +36,4 @@ export const isMatched = async (req) => {
     }
   }
 };
+

@@ -7,6 +7,7 @@ import { UploadOnCloudinary } from "../utils/cloudinary.js";
 import fs from "fs";
 import crypto from "crypto";
 import { ApiResponse } from "../utils/ApiResponse.js";
+import { Otpgenerator } from "../utils/Otpgenerator.js";
 
 const generatedAcessToken = async (refreshToken) => {
   let decodedToken;
@@ -91,7 +92,7 @@ const generatedRefreshToken = async (req, userid) => {
 
 const registerUser = asyncHandler(async (req, res) => {
   const { username, email, password, fullname, role } = req.body;
-  
+
   if (
     [username, email, password, fullname, role].some(
       (field) => !field || field.trim() === "",
@@ -104,7 +105,7 @@ const registerUser = asyncHandler(async (req, res) => {
 
   //check existed user
   const existUser = await User.findOne({
-    $or: [{ username},{ email }],
+    $or: [{ username }, { email }],
   });
 
   if (existUser != null) {
@@ -123,55 +124,62 @@ const registerUser = asyncHandler(async (req, res) => {
     .createHash("sha256")
     .update(String(password))
     .digest("hex");
-    let user=null
-    try {
-      user = await User.create({
-        username: username,
-        password: PasswordHash,
-        email: email,
-        fullname: fullname,
-        avater: UploadImageResponse?.secure_url,
-        avater_publicId:UploadImageResponse?.public_id,
-        role: role,
-        isverified: false,
-      });
-    } catch (error) {
-      throw new Apierror(500,"databaseError",error)
-    }
-    if(user==null){
-      throw new Apierror(400,"user should not be null",[])
-    }
-    const { refreshToken, hashedRefreshToken } = await generatedRefreshToken(
-      req,
-      user._id,
-    );
-    user.refreshToken = hashedRefreshToken;
-    await user.save();
 
-    const accessToken = await generatedAcessToken(refreshToken);
+  try {
+    await Otpgenerator(email, 0);
+  } catch (error) {
+    throw new Apierror(400, error);
+  }
+  let user = null;
+  try {
+    user = await User.create({
+      username: username,
+      password: PasswordHash,
+      email: email,
+      fullname: fullname,
+      avater: UploadImageResponse?.secure_url,
+      avater_publicId: UploadImageResponse?.public_id,
+      role: role,
+      isverified: false,
+    });
+  } catch (error) {
+    throw new Apierror(500, "databaseError", error);
+  }
+  if (user == null) {
+    throw new Apierror(400, "user should not be null", []);
+  }
+  const { refreshToken, hashedRefreshToken } = await generatedRefreshToken(
+    req,
+    user._id,
+  );
+  user.refreshToken = hashedRefreshToken;
 
-    const options = {
+  await user.save();
+
+  const accessToken = await generatedAcessToken(refreshToken);
+
+  const options = {
+    httpOnly: true,
+    secure: true,
+    samesite: "strict",
+    maxAge: 7 * 24 * 60 * 60 * 1000, //
+  };
+
+  return res
+    .status(200)
+    .cookie("refreshToken", refreshToken, {
       httpOnly: true,
       secure: true,
       samesite: "strict",
-      maxAge: 7 * 24 * 60 * 60 * 1000, //
-    };
-
-    return res
-      .status(200)
-      .cookie("refreshToken", refreshToken, {
-        httpOnly: true,
-        secure: true,
-        samesite: "strict",
-        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 day
-      })
-      .cookie("accessToken", accessToken, {
-        httpOnly: true,
-        secure: true,
-        samesite: "strict",
-        maxAge: 1 * 24 * 60 * 60 * 1000, // 1 day
-      })
-      .json(new ApiResponse(200, "User create Successfully"));
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 day
+    })
+    .cookie("accessToken", accessToken, {
+      httpOnly: true,
+      secure: true,
+      samesite: "strict",
+      maxAge: 1 * 24 * 60 * 60 * 1000, // 1 day
+    })
+    .json(new ApiResponse(200, "User create Successfully"));
 });
 
 const loginUser = asyncHandler(async (req, res) => {
@@ -236,7 +244,7 @@ const logoutUser = asyncHandler(async (req, res) => {
     .status(200)
     .clearCookie("accessToken")
     .clearCookie("refreshToken")
-    .json(new Apierror(200, "user logged out"));
+    .json(new ApiResponse(200, "user logged out"));
 });
 
 const logoutAlldevice = asyncHandler(async (req, res) => {
@@ -342,5 +350,5 @@ export {
   logoutAlldevice,
   refreshAccessToken,
   changeCurrentPassword,
-  getCurrentUser
+  getCurrentUser,
 };

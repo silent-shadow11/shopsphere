@@ -19,6 +19,7 @@ import {
 } from "../controller/user.controller.js";
 import { getAllProduct } from "../controller/seller_product.controller.js";
 import { getAllCategory } from "../controller/category.controller.js";
+import { isMatched } from "../utils/MatchOtp.js";
 
 const router = Router();
 
@@ -33,6 +34,8 @@ router.route("/register").post(
   ]),
   registerUser,
 );
+
+router.route("/Verifyotp").post(isMatched)
 
 router.route("/login").post(upload.none(), loginUser);
 

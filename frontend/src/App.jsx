@@ -10,12 +10,14 @@ import AddProduct from './components/Home/admin/addProduct.jsx'
 import Cart from './components/Home/user/Cart.jsx'
 import Order from './components/Home/user/Order.jsx'
 import { ToastContainer } from "react-toastify";
+import OTPVerify from './components/auth/OTPVerify/OTPVerify.jsx'
 
 function App() {
   return (
     <>
     <ToastContainer/>
-    <Signout/>
+    <Signin/>
+    <OTPVerify/>
     </>
   )
 }

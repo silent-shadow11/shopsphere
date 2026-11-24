@@ -1,10 +1,11 @@
 // remaining rate limit
 
-import { OtpModel } from "../models/otp.model";
-import nodemailer from "nodemailer";
+import { OtpModel } from "../models/otp.model.js";
 import { randomInt } from "crypto";
-import { Apierror } from "./ApiError";
+import { Apierror } from "./ApiError.js";
 import crypto from "crypto";
+import { sendEmail } from "./gmail.js";
+
 const Otpgenerator = async (email, prevAttempt = 0) => {
   let prevOTP;
   try {
@@ -43,32 +44,18 @@ const Otpgenerator = async (email, prevAttempt = 0) => {
       email: email,
       otp: HashedOtp,
       attempts: prevAttempt + 1,
-      expireAt: Date.now(),
+      expireAt: new Date(Date.now() + 5 * 60 * 1000),
     });
   } catch (error) {
     throw new Apierror(500, "Unexpected database Error");
   }
 
-  // Create a transporter using SMTP
-  const transporter = nodemailer.createTransport({
-    host: "smtp.gmail.com",
-    port: 587,
-    secure: false,
-    auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS,
-    },
-  });
+
   /// send email
-  try {
-    const info = await transporter.sendMail({
-      from: `"Shopsphere Team" <${process.env.SMTP_USER}>`,
-      to: email,
-      subject: "Verify Your Email - Shopsphere",
 
-      text: `Welcome to ShopSphere! Your email verification OTP is ${otpData}. This OTP is valid for 5 minutes. Do not share it with anyone.`,
-
-      html: `
+// Send email using Gmail API
+try {
+  const html = `
     <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 20px auto; padding: 30px; border: 1px solid #e5e7eb; border-radius: 12px;">
 
       <h1 style="text-align: center; color: #2563eb;">
@@ -84,9 +71,7 @@ const Otpgenerator = async (email, prevAttempt = 0) => {
         We're excited to have you onboard.
       </p>
 
-      <p>
-        Use the following OTP to verify your email address:
-      </p>
+      <p>Use the following OTP to verify your email address:</p>
 
       <div style="background: #f3f4f6; padding: 20px; text-align: center; border-radius: 8px; margin: 25px 0;">
         <h1 style="color: #2563eb; letter-spacing: 10px; margin: 0;">
@@ -94,9 +79,7 @@ const Otpgenerator = async (email, prevAttempt = 0) => {
         </h1>
       </div>
 
-      <p>
-        This OTP will expire in <strong>5 minutes</strong>.
-      </p>
+      <p>This OTP will expire in <strong>5 minutes</strong>.</p>
 
       <p style="color: #dc2626;">
         For your security, never share this OTP with anyone.
@@ -114,20 +97,27 @@ const Otpgenerator = async (email, prevAttempt = 0) => {
       </p>
 
     </div>
-  `,
-    });
-    console.log("Message sent: %s", info.messageId);
-    return OTP;
-  } catch (err) {
-    if (OTP != null) {
-      try {
-        await OtpModel.deleteOne({ _id: OTP._id });
-      } catch (error) {
-        throw new Apierror(500, "Database connection failed");
-      }
-    }
-    throw new Apierror(500, `Error while sending mail: ${err}`);
+  `;
+
+  const info = await sendEmail(
+    email,
+    "Verify Your Email - ShopSphere",
+    html
+  );
+
+  console.log("Email sent successfully:", info.id);
+
+  return OTP;
+
+} catch (err) {
+  console.error("Email sending failed:", err.message);
+
+  if (OTP) {
+    await OtpModel.deleteOne({ _id: OTP._id });
   }
+
+  throw new Apierror(500, "Unable to send verification email");
+}
 };
 
 export { Otpgenerator };
