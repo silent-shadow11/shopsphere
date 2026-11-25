@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import api from "../../../lib/axios";
 import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css"
+import "react-toastify/dist/ReactToastify.css";
 
-function Signin() {
+function sendOtptoUser() {
   const fieldClassName =
     "mt-2 w-full rounded-xl border border-stone-300 bg-white px-4 py-3 text-sm text-stone-900 outline-none transition placeholder:text-stone-400 focus:border-emerald-800 focus:ring-2 focus:ring-emerald-800/10";
   const [avatarFile, setAvatarFile] = useState(null);
@@ -36,12 +36,17 @@ function Signin() {
     formData.append("password", password);
     formData.append("avatar", avatarFile);
     formData.append("role", role);
-    
+
     try {
-      const response = await api.post("/users/register", formData);
-      toast.success("Signin sucessfully...")
+      sessionStorage.setItem("verifyEmail",email)
+      const response = await api.post("/users/sendOtptoUser", formData);
+      toast.success("Otp send Sucessfully...");
     } catch (error) {
-      toast.error(error.response?.data?.message || error.message || "something went wrong!!")
+      toast.error(
+        error.response?.data?.message ||
+          error.message ||
+          "something went wrong!!",
+      );
     }
   }
 
@@ -219,4 +224,4 @@ function Signin() {
   );
 }
 
-export default Signin;
+export default sendOtptoUser;

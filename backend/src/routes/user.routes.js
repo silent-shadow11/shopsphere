@@ -7,6 +7,8 @@ import {
   logoutUser,
   refreshAccessToken,
   registerUser,
+  sendOtptoUser,
+  verifyOtp,
 } from "../controller/auth.controller.js";
 import { upload } from "../middleware/multer.middleware.js";
 import { AcessTokenverifyJWT } from "../middleware/auth.middleware.js";
@@ -25,17 +27,21 @@ const router = Router();
 
 //Auth field ......
 
-router.route("/register").post(
+router.route("/sendOtptoUser").post(
   upload.fields([
     {
       name: "avatar",
       maxCount: 1,
     },
   ]),
-  registerUser,
+  sendOtptoUser,
 );
 
-router.route("/Verifyotp").post(isMatched)
+router.route("/Verifyotp").post(verifyOtp)
+
+router.route("/registerUser").post(
+  registerUser
+);
 
 router.route("/login").post(upload.none(), loginUser);
 

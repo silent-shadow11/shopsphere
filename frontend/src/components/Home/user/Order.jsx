@@ -1,3 +1,5 @@
+import { ArrowUpRight } from '@phosphor-icons/react'
+
 function Order({ orders = [] }) {
   return (
     <main id="orders" className="min-h-[55vh] bg-[#f7f6f2] px-5 py-12 sm:px-8 sm:py-16">
@@ -8,7 +10,7 @@ function Order({ orders = [] }) {
             <h1 className="mt-3 text-4xl font-medium tracking-tight text-stone-900 sm:text-5xl">Order <span className="font-serif italic text-emerald-800">history.</span></h1>
             <p className="mt-3 text-sm text-stone-500">Keep track of the good things heading your way.</p>
           </div>
-          <a href="#featured" className="inline-flex w-fit items-center gap-3 rounded-full bg-stone-900 px-5 py-3 text-sm font-medium text-white transition hover:bg-emerald-800">Continue shopping <span aria-hidden="true">↗</span></a>
+          <a href="#featured" className="inline-flex w-fit items-center gap-3 rounded-full bg-stone-900 px-5 py-3 text-sm font-medium text-white transition hover:bg-emerald-800">Continue shopping <ArrowUpRight aria-hidden="true" size={16} /></a>
         </header>
 
         {orders.length === 0 ? (
@@ -32,7 +34,7 @@ function Order({ orders = [] }) {
                 </div>
                 <div className="flex flex-col justify-between gap-3 pt-5 sm:flex-row sm:items-center">
                   <p className="text-sm text-stone-600">{order.itemSummary}</p>
-                  {order.href && <a href={order.href} className="text-sm font-medium text-emerald-800 transition hover:text-emerald-950">View order <span aria-hidden="true">↗</span></a>}
+                  {order.href && <a href={order.href} className="inline-flex items-center gap-1 text-sm font-medium text-emerald-800 transition hover:text-emerald-950">View order <ArrowUpRight aria-hidden="true" size={15} /></a>}
                 </div>
               </article>
             ))}

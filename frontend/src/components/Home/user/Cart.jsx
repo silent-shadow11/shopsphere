@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Minus, Plus } from '@phosphor-icons/react'
 
 const initialItems = [
   { id: 1, name: 'Everyday leather tote', category: 'Accessories', price: 89, quantity: 1, image: 'photo-1548036328-c9fa89d128fa' },
@@ -48,9 +49,9 @@ function Cart() {
                     </div>
                     <div className="flex items-center justify-between gap-5 sm:flex-col sm:items-end">
                       <div className="inline-flex items-center border border-stone-300">
-                        <button type="button" aria-label={`Decrease ${item.name} quantity`} onClick={() => updateQuantity(item.id, -1)} className="h-9 w-9 text-stone-600 transition hover:bg-stone-100">−</button>
+                        <button type="button" aria-label={`Decrease ${item.name} quantity`} onClick={() => updateQuantity(item.id, -1)} className="inline-flex h-9 w-9 items-center justify-center text-stone-600 transition hover:bg-stone-100"><Minus aria-hidden="true" size={16} /></button>
                         <span className="w-8 text-center text-sm text-stone-800">{item.quantity}</span>
-                        <button type="button" aria-label={`Increase ${item.name} quantity`} onClick={() => updateQuantity(item.id, 1)} className="h-9 w-9 text-stone-600 transition hover:bg-stone-100">+</button>
+                        <button type="button" aria-label={`Increase ${item.name} quantity`} onClick={() => updateQuantity(item.id, 1)} className="inline-flex h-9 w-9 items-center justify-center text-stone-600 transition hover:bg-stone-100"><Plus aria-hidden="true" size={16} /></button>
                       </div>
                       <p className="text-sm font-medium text-stone-900">${(item.price * item.quantity).toFixed(2)}</p>
                     </div>

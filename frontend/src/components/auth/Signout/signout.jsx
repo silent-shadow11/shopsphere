@@ -1,4 +1,5 @@
 import { toast } from "react-toastify";
+import { ArrowUpRight } from '@phosphor-icons/react';
 import api from "../../../lib/axios";
 
 function Signout() {
@@ -58,7 +59,7 @@ function Signout() {
           onClick={handleSignout}
           className="inline-flex items-center justify-center gap-2 rounded-full border border-stone-300 px-5 py-3 text-sm font-medium text-stone-800 transition hover:border-stone-900 hover:bg-stone-900 hover:text-white focus:outline-none focus:ring-2 focus:ring-stone-500 focus:ring-offset-2"
         >
-          Sign out <span aria-hidden="true">↗</span>
+          Sign out <ArrowUpRight aria-hidden="true" size={16} />
         </button>
       </div>
     </section>

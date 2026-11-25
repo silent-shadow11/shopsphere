@@ -1,15 +1,46 @@
 import { useState } from "react";
 import api from "../../../lib/axios";
+import { toast } from "react-toastify";
+import { useDispatch } from "react-redux";
+import { setProfile } from "../../../redux/slice/AuthSilce";
 
-function OTPVerify({ email = "you@example.com", onVerify, onResend }) {
+function OTPVerify({ onVerify, onResend }) {
+  const email = sessionStorage.getItem("verifyEmail") || "your email address";
   const [otp, setOtp] = useState("");
-
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const dispatch=useDispatch();
   async function handleSubmit(event) {
     event.preventDefault();
-    if (otp.length === 6) onVerify?.(otp);
-    const response=await api.post("users/Verifyotp")
-    console.log(response);
+    if (otp.length !== 6 || isSubmitting) return;
     
+    setIsSubmitting(true);
+    try {
+      const response = await api.post("/users/Verifyotp", { otp,email });
+      toast.success(response.data?.message || "Email verified successfully.");
+      onVerify?.(otp, response.data);
+      try {
+        const response = await api.post("/users/registerUser",{email});
+        dispatch(setProfile(response?.data?.data.message))
+        
+        toast.success("user create Successfully...");
+
+        sessionStorage.removeItem("email");
+      } catch (error) {
+        toast.error(
+          error.response?.data?.message ||
+            error.message ||
+            "something went wrong!!",
+        );
+      }
+    } catch (error) {
+      toast.error(
+        error.response?.data?.message ||
+          error.message ||
+          "Could not verify the code.",
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -27,7 +58,10 @@ function OTPVerify({ email = "you@example.com", onVerify, onResend }) {
         <p className="mb-2 text-[0.7rem] font-bold tracking-[0.2em] text-emerald-800">
           SECURE YOUR ACCOUNT
         </p>
-        <h1 id="otp-title" className="text-3xl font-semibold tracking-tight sm:text-4xl">
+        <h1
+          id="otp-title"
+          className="text-3xl font-semibold tracking-tight sm:text-4xl"
+        >
           Verify your email
         </h1>
         <p className="mt-3 mb-8 text-sm leading-6 text-stone-500">
@@ -35,7 +69,10 @@ function OTPVerify({ email = "you@example.com", onVerify, onResend }) {
           <strong className="font-semibold text-stone-700">{email}</strong>.
         </p>
 
-        <form className="text-left" onSubmit={handleSubmit}>
+        <form
+          className="text-left"
+          onSubmit={handleSubmit}
+        >
           <label
             htmlFor="otp-code"
             className="mb-2 block text-sm font-semibold text-stone-700"
@@ -59,15 +96,18 @@ function OTPVerify({ email = "you@example.com", onVerify, onResend }) {
             aria-describedby="otp-hint"
             required
           />
-          <p id="otp-hint" className="mt-2 mb-6 text-xs text-stone-400">
+          <p
+            id="otp-hint"
+            className="mt-2 mb-6 text-xs text-stone-400"
+          >
             The code is valid for a limited time.
           </p>
           <button
             className="w-full rounded-full bg-stone-900 px-4 py-3.5 text-sm font-semibold text-white transition hover:bg-emerald-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-800 disabled:cursor-not-allowed disabled:opacity-45"
             type="submit"
-            disabled={otp.length !== 6}
+            disabled={otp.length !== 6 || isSubmitting}
           >
-            Verify email
+            {isSubmitting ? "Verifying…" : "Verify email"}
           </button>
         </form>
 

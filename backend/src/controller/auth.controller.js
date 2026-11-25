@@ -8,6 +8,9 @@ import fs from "fs";
 import crypto from "crypto";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { Otpgenerator } from "../utils/Otpgenerator.js";
+import { PendingRegistration } from "../models/pendingRegistration.model.js";
+import { isMatched } from "../utils/MatchOtp.js";
+import { OtpModel } from "../models/otp.model.js";
 
 const generatedAcessToken = async (refreshToken) => {
   let decodedToken;
@@ -90,7 +93,7 @@ const generatedRefreshToken = async (req, userid) => {
   return { refreshToken, hashedRefreshToken, session };
 };
 
-const registerUser = asyncHandler(async (req, res) => {
+const sendOtptoUser = asyncHandler(async (req, res) => {
   const { username, email, password, fullname, role } = req.body;
 
   if (
@@ -115,39 +118,104 @@ const registerUser = asyncHandler(async (req, res) => {
     throw new Apierror(409, "Username or email already exits");
   }
 
-  let UploadImageResponse = null;
+  let uploadImageResponse = null;
   if (avatarLocalPath) {
-    UploadImageResponse = await UploadOnCloudinary(avatarLocalPath, "avatar");
+    uploadImageResponse = await UploadOnCloudinary(avatarLocalPath, "avatar");
   }
 
-  const PasswordHash = crypto
+  const passwordHash = crypto
     .createHash("sha256")
     .update(String(password))
     .digest("hex");
 
+  await PendingRegistration.findOneAndUpdate(
+    { email },
+    {
+      username: username,
+      password: passwordHash,
+      email: email,
+      fullname: fullname,
+      avater: uploadImageResponse?.secure_url,
+      avater_publicId: uploadImageResponse?.public_id,
+      role: role,
+      isverified: false,
+    },
+    {
+      upsert: true,
+      new: true,
+    },
+  );
+
   try {
+    console.log(1);
+    
     await Otpgenerator(email, 0);
   } catch (error) {
     throw new Apierror(400, error);
   }
-  let user = null;
-  try {
-    user = await User.create({
-      username: username,
-      password: PasswordHash,
-      email: email,
-      fullname: fullname,
-      avater: UploadImageResponse?.secure_url,
-      avater_publicId: UploadImageResponse?.public_id,
-      role: role,
-      isverified: false,
-    });
-  } catch (error) {
-    throw new Apierror(500, "databaseError", error);
+  return res
+    .status(200)
+    .json(new ApiResponse(200, email, "Otp generated sucessfully..."));
+});
+
+const verifyOtp=asyncHandler(async(req,res)=>{
+    const isValid = await isMatched(req);
+
+  if (!isValid) {
+    throw new Apierror(400, "Invalid OTP");
   }
-  if (user == null) {
-    throw new Apierror(400, "user should not be null", []);
+
+  const { email } = req.body;
+
+  const pendingUser = await PendingRegistration.findOneAndUpdate(
+    { email },
+    {
+      $set: {
+        isverified: true,
+      },
+    },
+    {
+      new: true,
+    }
+  );
+
+  if (!pendingUser) {
+    throw new Apierror(404, "Registration not found");
   }
+
+  await OtpModel.deleteOne({ email });
+
+  return res.status(200).json(
+    new ApiResponse(200, {}, "Email verified successfully")
+  );
+})
+
+const registerUser = asyncHandler(async (req, res) => {
+  const { email } = req.body
+
+  const pendingUser = await PendingRegistration.findOne({ email });
+
+  if (!pendingUser) {
+    throw new Apierror(404, "Registration request not found");
+  }
+
+  if (pendingUser.isverified !== true) {
+    throw new Apierror(400, "Email is not verified");
+  }
+
+  const user = await User.create({
+    username: pendingUser.username,
+    password: pendingUser.password,
+    email: pendingUser.email,
+    fullname: pendingUser.fullname,
+    avater: pendingUser.avater,
+    avater_publicId: pendingUser.avater_publicId,
+    role: pendingUser.role,
+    isverified: true,
+  });
+
+  await PendingRegistration.deleteOne({ email });
+
   const { refreshToken, hashedRefreshToken } = await generatedRefreshToken(
     req,
     user._id,
@@ -158,12 +226,7 @@ const registerUser = asyncHandler(async (req, res) => {
 
   const accessToken = await generatedAcessToken(refreshToken);
 
-  const options = {
-    httpOnly: true,
-    secure: true,
-    samesite: "strict",
-    maxAge: 7 * 24 * 60 * 60 * 1000, //
-  };
+ 
 
   return res
     .status(200)
@@ -179,7 +242,22 @@ const registerUser = asyncHandler(async (req, res) => {
       samesite: "strict",
       maxAge: 1 * 24 * 60 * 60 * 1000, // 1 day
     })
-    .json(new ApiResponse(200, "User create Successfully"));
+    .json(
+      new ApiResponse(
+        200,
+        {
+          user: {
+            _id: user._id,
+            username: user.username,
+            email: user.email,
+            fullname: user.fullname,
+            avatar: user.avater,
+            role: user.role,
+          },
+        },
+        "User create Successfully",
+      ),
+    );
 });
 
 const loginUser = asyncHandler(async (req, res) => {
@@ -344,11 +422,13 @@ const getCurrentUser = asyncHandler(async (req, res) => {
 export {
   generatedAcessToken,
   generatedRefreshToken,
-  registerUser,
+  sendOtptoUser,
   loginUser,
   logoutUser,
   logoutAlldevice,
   refreshAccessToken,
   changeCurrentPassword,
   getCurrentUser,
+  registerUser,
+  verifyOtp
 };

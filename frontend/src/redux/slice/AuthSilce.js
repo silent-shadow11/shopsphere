@@ -3,7 +3,8 @@ import { createSlice } from "@reduxjs/toolkit";
 const initialState={
     profile:null,
     cart:null,
-    login:false
+    login:false,
+    order:{},
 }
 
 const authSilce=createSlice({
@@ -18,11 +19,19 @@ const authSilce=createSlice({
         },
         setCart:(state,action)=>{
             state.cart=action.payload
+        },
+        setOrder:(state,action)=>{
+            state.order=action.payload
         }
     }
 
 })
 
-export {
-    
-}
+export const {
+    setProfile,
+    setLogin,
+    setCart,
+    setOrder
+}=authSilce.actions
+
+export default authSilce.reducer

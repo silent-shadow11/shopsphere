@@ -5,6 +5,7 @@ import { randomInt } from "crypto";
 import { Apierror } from "./ApiError.js";
 import crypto from "crypto";
 import { sendEmail } from "./gmail.js";
+import { ApiResponse } from "./ApiResponse.js";
 
 const Otpgenerator = async (email, prevAttempt = 0) => {
   let prevOTP;
@@ -17,7 +18,7 @@ const Otpgenerator = async (email, prevAttempt = 0) => {
     const currentTime = Date.now();
     const createdTime = prevOTP.createdAt.getTime();
 
-    const cooldown = 5 * 60 * 1000;
+    const cooldown = 1 * 60 * 1000;
 
     if (currentTime - createdTime < cooldown) {
       throw new Apierror(
@@ -46,6 +47,7 @@ const Otpgenerator = async (email, prevAttempt = 0) => {
       attempts: prevAttempt + 1,
       expireAt: new Date(Date.now() + 5 * 60 * 1000),
     });
+
   } catch (error) {
     throw new Apierror(500, "Unexpected database Error");
   }

@@ -3,7 +3,11 @@ import { Apierror } from "./ApiError.js";
 import crypto from "crypto";
 
 export const isMatched = async (req) => {
-  const { email, UserInputOtp } = req.body;
+  const { otp: UserInputOtp, email } = req.body;
+
+  console.log(UserInputOtp);
+  
+  
   if (!UserInputOtp) {
     throw new Apierror(400, "OTP is required");
   }
@@ -30,10 +34,9 @@ export const isMatched = async (req) => {
     throw new Apierror(400, "OTP expired");
   } else {
     if (hashedInputOTP === otp.otp) {
-        return true
+      return true
     } else {
       throw new Apierror(404, "Invaild OTP");
     }
   }
 };
-
