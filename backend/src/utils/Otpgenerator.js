@@ -6,6 +6,7 @@ import { Apierror } from "./ApiError.js";
 import crypto from "crypto";
 import { sendEmail } from "./gmail.js";
 import { ApiResponse } from "./ApiResponse.js";
+import { PendingRegistration } from "../models/pendingRegistration.model.js";
 
 const Otpgenerator = async (email, prevAttempt = 0) => {
   let prevOTP;
@@ -114,9 +115,12 @@ try {
 } catch (err) {
   console.error("Email sending failed:", err.message);
 
+
   if (OTP) {
     await OtpModel.deleteOne({ _id: OTP._id });
   }
+
+  await PendingRegistration.findOneAndDelete({ email });
 
   throw new Apierror(500, "Unable to send verification email");
 }

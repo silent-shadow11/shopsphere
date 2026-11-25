@@ -2,29 +2,28 @@ import { useState } from "react";
 import api from "../../../lib/axios";
 import { toast } from "react-toastify";
 import { useDispatch } from "react-redux";
-import { setProfile } from "../../../redux/slice/AuthSilce";
+import { setLogin, setProfile } from "../../../redux/slice/AuthSilce";
 
 function OTPVerify({ onVerify, onResend }) {
   const email = sessionStorage.getItem("verifyEmail") || "your email address";
   const [otp, setOtp] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const dispatch=useDispatch();
+  const dispatch = useDispatch();
   async function handleSubmit(event) {
     event.preventDefault();
     if (otp.length !== 6 || isSubmitting) return;
-    
+
     setIsSubmitting(true);
     try {
-      const response = await api.post("/users/Verifyotp", { otp,email });
+      const response = await api.post("/users/Verifyotp", { otp, email });
       toast.success(response.data?.message || "Email verified successfully.");
       onVerify?.(otp, response.data);
       try {
-        const response = await api.post("/users/registerUser",{email});
-        dispatch(setProfile(response?.data?.data.message))
-        
+        const response = await api.post("/users/registerUser", { email });
+        sessionStorage.removeItem("verifyEmail");
+        dispatch(setProfile(response?.data?.data?.user));
+        dispatch(setLogin(true))
         toast.success("user create Successfully...");
-
-        sessionStorage.removeItem("email");
       } catch (error) {
         toast.error(
           error.response?.data?.message ||

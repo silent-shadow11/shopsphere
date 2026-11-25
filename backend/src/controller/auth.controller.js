@@ -128,38 +128,39 @@ const sendOtptoUser = asyncHandler(async (req, res) => {
     .update(String(password))
     .digest("hex");
 
-  await PendingRegistration.findOneAndUpdate(
-    { email },
-    {
-      username: username,
-      password: passwordHash,
-      email: email,
-      fullname: fullname,
-      avater: uploadImageResponse?.secure_url,
-      avater_publicId: uploadImageResponse?.public_id,
-      role: role,
-      isverified: false,
-    },
-    {
-      upsert: true,
-      new: true,
-    },
-  );
-
   try {
-    console.log(1);
-    
-    await Otpgenerator(email, 0);
+    await PendingRegistration.findOneAndUpdate(
+      { email },
+      {
+        username: username,
+        password: passwordHash,
+        email: email,
+        fullname: fullname,
+        avater: uploadImageResponse?.secure_url,
+        avater_publicId: uploadImageResponse?.public_id,
+        role: role,
+        isverified: false,
+      },
+      {
+        upsert: true,
+        new: true,
+      },
+    );
   } catch (error) {
-    throw new Apierror(400, error);
+    if (error?.code === 11000) {
+      throw new Apierror(409, "Username or email already exists");
+    }
   }
+
+  await Otpgenerator(email, 0);
+
   return res
     .status(200)
     .json(new ApiResponse(200, email, "Otp generated sucessfully..."));
 });
 
-const verifyOtp=asyncHandler(async(req,res)=>{
-    const isValid = await isMatched(req);
+const verifyOtp = asyncHandler(async (req, res) => {
+  const isValid = await isMatched(req);
 
   if (!isValid) {
     throw new Apierror(400, "Invalid OTP");
@@ -176,7 +177,7 @@ const verifyOtp=asyncHandler(async(req,res)=>{
     },
     {
       new: true,
-    }
+    },
   );
 
   if (!pendingUser) {
@@ -185,13 +186,13 @@ const verifyOtp=asyncHandler(async(req,res)=>{
 
   await OtpModel.deleteOne({ email });
 
-  return res.status(200).json(
-    new ApiResponse(200, {}, "Email verified successfully")
-  );
-})
+  return res
+    .status(200)
+    .json(new ApiResponse(200, {}, "Email verified successfully"));
+});
 
 const registerUser = asyncHandler(async (req, res) => {
-  const { email } = req.body
+  const { email } = req.body;
 
   const pendingUser = await PendingRegistration.findOne({ email });
 
@@ -225,8 +226,6 @@ const registerUser = asyncHandler(async (req, res) => {
   await user.save();
 
   const accessToken = await generatedAcessToken(refreshToken);
-
- 
 
   return res
     .status(200)
@@ -278,7 +277,7 @@ const loginUser = asyncHandler(async (req, res) => {
     user = await User.findOne({
       email: email,
       password: PasswordHash,
-    });
+    }).select('-password');
   } catch (error) {
     throw new Apierror(500, "Database Error..");
   }
@@ -308,7 +307,7 @@ const loginUser = asyncHandler(async (req, res) => {
       samesite: "strict",
       maxAge: 1 * 24 * 60 * 60 * 1000, //
     })
-    .json(new ApiResponse(200, "user login sucessfully..."));
+    .json(new ApiResponse(200,user, "user login sucessfully..."));
 });
 
 const logoutUser = asyncHandler(async (req, res) => {
@@ -430,5 +429,5 @@ export {
   changeCurrentPassword,
   getCurrentUser,
   registerUser,
-  verifyOtp
+  verifyOtp,
 };

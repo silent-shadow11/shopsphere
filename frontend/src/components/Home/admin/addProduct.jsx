@@ -1,6 +1,47 @@
+import { useEffect, useRef, useState } from 'react'
+
 function AddProduct() {
+  const [images, setImages] = useState([])
+  const [imagePreviews, setImagePreviews] = useState([])
+  const [imageError, setImageError] = useState('')
+  const imagePreviewsRef = useRef([])
+
+  function clearImagePreviews() {
+    imagePreviewsRef.current.forEach((url) => URL.revokeObjectURL(url))
+    imagePreviewsRef.current = []
+  }
+
+  useEffect(() => clearImagePreviews, [])
+
   function handleSubmit(event) {
     event.preventDefault()
+  }
+
+  function handleImagesChange(event) {
+    const selectedImages = Array.from(event.target.files)
+
+    if (selectedImages.length > 5) {
+      clearImagePreviews()
+      setImages([])
+      setImagePreviews([])
+      setImageError('Please select no more than 5 images.')
+      event.target.value = ''
+      return
+    }
+
+    clearImagePreviews()
+    const previews = selectedImages.map((image) => URL.createObjectURL(image))
+    imagePreviewsRef.current = previews
+    setImages(selectedImages)
+    setImagePreviews(previews)
+    setImageError('')
+  }
+
+  function handleReset() {
+    clearImagePreviews()
+    setImages([])
+    setImagePreviews([])
+    setImageError('')
   }
 
   const inputClassName = 'mt-2 w-full rounded-xl border border-stone-300 bg-white px-4 py-3 text-sm text-stone-900 outline-none transition placeholder:text-stone-400 focus:border-emerald-800 focus:ring-2 focus:ring-emerald-800/10'
@@ -15,7 +56,7 @@ function AddProduct() {
           <p className="mt-2 text-sm text-stone-500">Add product details to prepare a new item for your store.</p>
         </div>
 
-        <form className="mt-7 space-y-6" onSubmit={handleSubmit}>
+        <form className="mt-7 space-y-6" onSubmit={handleSubmit} onReset={handleReset}>
           <div className="grid gap-5 sm:grid-cols-2">
             <div className="sm:col-span-2">
               <label htmlFor="product-name" className={labelClassName}>Product name</label>
@@ -42,9 +83,34 @@ function AddProduct() {
               <label htmlFor="product-stock" className={labelClassName}>Stock quantity</label>
               <input id="product-stock" name="stock" type="number" min="0" step="1" placeholder="0" required className={inputClassName} />
             </div>
-            <div>
-              <label htmlFor="product-image" className={labelClassName}>Product image URL</label>
-              <input id="product-image" name="image" type="url" placeholder="https://example.com/product.jpg" required className={inputClassName} />
+            <div className="sm:col-span-2">
+              <label htmlFor="product-images" className={labelClassName}>Product images</label>
+              <input
+                id="product-images"
+                name="images"
+                type="file"
+                accept="image/*"
+                multiple
+                required
+                onChange={handleImagesChange}
+                aria-describedby="product-images-help"
+                className={`${inputClassName} file:mr-4 file:rounded-full file:border-0 file:bg-emerald-50 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-emerald-900 hover:file:bg-emerald-100`}
+              />
+              <p id="product-images-help" className="mt-2 text-xs text-stone-500">Upload up to 5 images.</p>
+              {images.length > 0 && (
+                <p className="mt-1 text-xs text-emerald-800">{images.length} image{images.length === 1 ? '' : 's'} selected.</p>
+              )}
+              {imageError && <p role="alert" className="mt-1 text-xs text-red-600">{imageError}</p>}
+              {imagePreviews.length > 0 && (
+                <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-5">
+                  {imagePreviews.map((preview, index) => (
+                    <div key={preview} className="overflow-hidden rounded-xl border border-stone-200 bg-stone-50">
+                      <img src={preview} alt={`Product preview ${index + 1}`} className="aspect-square w-full object-cover" />
+                      <p className="truncate px-2 py-1.5 text-xs text-stone-600">{images[index].name}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
             <div className="sm:col-span-2">
               <label htmlFor="product-description" className={labelClassName}>Description</label>

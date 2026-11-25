@@ -1,7 +1,7 @@
 import Navbar from './components/Home/Navbar/Navbar.jsx'
 import Footer from './components/Home/Footer/footer.jsx'
 import Home from './components/Home/user/Home.jsx'
-import Signin from './components/auth/sendOtpTouser/sendOtp.jsx'
+import Signin from './components/auth/Signin/Signin.jsx'
 import Login from './components/auth/Login/Login.jsx'
 import Signout from './components/auth/Signout/signout.jsx'
 import DeleteAccount from './components/auth/Delete/DeleteAccount.jsx'
@@ -11,13 +11,13 @@ import Cart from './components/Home/user/Cart.jsx'
 import Order from './components/Home/user/Order.jsx'
 import { ToastContainer } from "react-toastify";
 import OTPVerify from './components/auth/OTPVerify/OTPVerify.jsx'
+import Spinner from './components/loaders/spinner.jsx'
+import Profile from './components/Home/user/Profile.jsx'
 
 function App() {
   return (
     <>
-    <ToastContainer/>
-    <Signin/>
-    <OTPVerify/>
+    {/* <Profile/> */}
     </>
   )
 }

@@ -1,4 +1,5 @@
 import { ArrowUpRight, Sparkle } from '@phosphor-icons/react'
+import { Link } from 'react-router-dom'
 
 const overviewCards = [
   { label: 'Total sales', value: '—', note: 'Sales summary' },
@@ -23,7 +24,7 @@ function AdminHome() {
             <h1 className="mt-3 text-4xl font-medium tracking-tight text-stone-900 sm:text-5xl">Store <span className="font-serif italic text-emerald-800">overview.</span></h1>
             <p className="mt-3 text-sm text-stone-600">Manage your store and review its latest activity.</p>
           </div>
-          <a href="#admin-products" className="inline-flex w-fit items-center gap-3 rounded-full bg-stone-900 px-5 py-3 text-sm font-medium text-white transition hover:bg-emerald-800">Add a product <ArrowUpRight aria-hidden="true" size={16} /></a>
+          <Link to="/addToProduct" className="inline-flex w-fit items-center gap-3 rounded-full bg-stone-900 px-5 py-3 text-sm font-medium text-white transition hover:bg-emerald-800">Add a product <ArrowUpRight aria-hidden="true" size={16} /></Link>
         </header>
 
         <section aria-label="Store statistics" className="grid gap-4 py-8 sm:grid-cols-2 lg:grid-cols-4">

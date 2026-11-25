@@ -1,24 +1,35 @@
 import { useState } from "react";
 import api from "../../../lib/axios";
 import { toast } from "react-toastify";
+import { useDispatch } from "react-redux";
+import { setLogin, setProfile } from "../../../redux/slice/AuthSilce";
+import Spinner from "../../loaders/spinner";
+import { Link, useNavigate } from "react-router-dom";
 
 function Login() {
+  const navigate=useNavigate()
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading,setLoading]=useState(false)
+  const dispatch = useDispatch();
   async function handleSubmit(event) {
     event.preventDefault();
     try {
+      setLoading(true)
       const response = await api.post("/users/login", { email, password });
-      console.log(response?.data?.data);
-      
-      toast.success("Login sucessfully..")
+      dispatch(setProfile(response?.data?.data));
+      dispatch(setLogin(true));
+      toast.success("Login sucessfully..");
+      navigate('/')
     } catch (error) {
       toast.error(
         error.response?.data?.message ||
           error.message ||
           "something went wrong!!",
       );
-    }
+    } finally{
+      setLoading(false)
+  }
   }
 
   return (
@@ -105,22 +116,22 @@ function Login() {
                   onChange={(event) => setPassword(event.target.value)}
                 />
               </div>
-              <button
+              <button disabled={loading}
                 type="submit"
                 className="w-full rounded-full bg-stone-900 px-5 py-3.5 text-sm font-medium text-white transition hover:bg-emerald-800 focus:outline-none focus:ring-2 focus:ring-emerald-800 focus:ring-offset-2"
               >
-                Log in
+                {loading?<Spinner/>:"Log in"}
               </button>
             </form>
 
             <p className="mt-6 text-center text-sm text-stone-500">
               New to ShopSphere?{" "}
-              <a
-                href="#signin"
+              <Link
+                to="/signin"
                 className="font-medium text-emerald-800 transition hover:text-emerald-950"
               >
                 Create an account
-              </a>
+              </Link>
             </p>
           </div>
         </div>

@@ -5,6 +5,7 @@ const initialState={
     cart:null,
     login:false,
     order:{},
+    loading:false
 }
 
 const authSilce=createSlice({
@@ -22,6 +23,9 @@ const authSilce=createSlice({
         },
         setOrder:(state,action)=>{
             state.order=action.payload
+        },
+        setLoading:(state,action)=>{
+            state.loading=action.payload
         }
     }
 

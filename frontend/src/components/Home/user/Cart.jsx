@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Minus, Plus } from '@phosphor-icons/react'
+import { Link } from 'react-router-dom'
 
 const initialItems = [
   { id: 1, name: 'Everyday leather tote', category: 'Accessories', price: 89, quantity: 1, image: 'photo-1548036328-c9fa89d128fa' },
@@ -68,7 +69,7 @@ function Cart() {
               </div>
               <div className="flex justify-between py-5 text-base font-medium text-stone-900"><span>Total</span><span>${subtotal.toFixed(2)}</span></div>
               <button type="button" className="w-full rounded-full bg-stone-900 px-5 py-3.5 text-sm font-medium text-white transition hover:bg-emerald-800">Continue to checkout</button>
-              <a href="#featured" className="mt-4 block text-center text-sm text-stone-500 transition hover:text-emerald-800">Continue shopping</a>
+              <Link to="/shop" className="mt-4 block text-center text-sm text-stone-500 transition hover:text-emerald-800">Continue shopping</Link>
             </aside>
           </div>
         )}

@@ -2,8 +2,9 @@ import { useEffect, useState } from "react";
 import api from "../../../lib/axios";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import Spinner from "../../loaders/spinner";
 
-function sendOtptoUser() {
+function Signin() {
   const fieldClassName =
     "mt-2 w-full rounded-xl border border-stone-300 bg-white px-4 py-3 text-sm text-stone-900 outline-none transition placeholder:text-stone-400 focus:border-emerald-800 focus:ring-2 focus:ring-emerald-800/10";
   const [avatarFile, setAvatarFile] = useState(null);
@@ -13,6 +14,7 @@ function sendOtptoUser() {
   const [password, setPassword] = useState("");
   const [fullname, setFullname] = useState("");
   const [role, setRole] = useState("user");
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (!avatarFile) {
@@ -26,6 +28,7 @@ function sendOtptoUser() {
   }, [avatarFile]);
 
   async function handleSubmit(event) {
+    setLoading(true)
     event.preventDefault();
 
     const formData = new FormData();
@@ -38,15 +41,22 @@ function sendOtptoUser() {
     formData.append("role", role);
 
     try {
-      sessionStorage.setItem("verifyEmail",email)
+
+      sessionStorage.setItem("verifyEmail", email);
       const response = await api.post("/users/sendOtptoUser", formData);
+      console.log(response);
+
       toast.success("Otp send Sucessfully...");
     } catch (error) {
+      console.log(error);
+
       toast.error(
         error.response?.data?.message ||
           error.message ||
           "something went wrong!!",
       );
+    } finally{
+      setLoading(false)
     }
   }
 
@@ -212,10 +222,13 @@ function sendOtptoUser() {
               </select>
             </div>
             <button
+              disabled={loading}
               type="submit"
               className="mt-2 w-full rounded-full bg-stone-900 px-5 py-3.5 text-sm font-medium text-white transition hover:bg-emerald-800 focus:outline-none focus:ring-2 focus:ring-emerald-800 focus:ring-offset-2"
             >
-              Create account
+              {loading ?
+                <Spinner />
+              : "Create account"}
             </button>
           </form>
         </div>
@@ -224,4 +237,4 @@ function sendOtptoUser() {
   );
 }
 
-export default sendOtptoUser;
+export default Signin;

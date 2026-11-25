@@ -1,15 +1,29 @@
 import { toast } from "react-toastify";
-import { ArrowUpRight } from '@phosphor-icons/react';
+import { ArrowUpRight } from "@phosphor-icons/react";
 import api from "../../../lib/axios";
+import { useDispatch } from "react-redux";
+import { setLogin, setProfile } from "../../../redux/slice/AuthSilce";
+import { useState } from "react";
+import Spinner from "../../loaders/spinner";
+import { useNavigate } from "react-router-dom";
 
 function Signout() {
+  const [loading,setLoading]=useState(false)
+  const dispatch = useDispatch();
+  const navigate=useNavigate()
   async function handleSignout() {
     // Connect this action to the authentication logout flow when it is available.
     try {
+      setLoading(true)
       await api.get("users/logout");
+      dispatch(setLogin(false));
+      dispatch(setProfile(null));
       toast.success("Logout sucessfully...");
+      navigate('/')
     } catch (error) {
       toast.error("Error !!!");
+    } finally{
+      setLoading(false)
     }
   }
 
@@ -55,11 +69,18 @@ function Signout() {
           </div>
         </div>
         <button
+          disabled={loading}
           type="button"
           onClick={handleSignout}
           className="inline-flex items-center justify-center gap-2 rounded-full border border-stone-300 px-5 py-3 text-sm font-medium text-stone-800 transition hover:border-stone-900 hover:bg-stone-900 hover:text-white focus:outline-none focus:ring-2 focus:ring-stone-500 focus:ring-offset-2"
-        >
-          Sign out <ArrowUpRight aria-hidden="true" size={16} />
+        >{loading?<Spinner/>:
+          (<>
+            Sign out{" "}
+          <ArrowUpRight
+            aria-hidden="true"
+            size={16}
+          />
+          </>)}
         </button>
       </div>
     </section>
