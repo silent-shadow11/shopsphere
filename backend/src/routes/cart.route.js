@@ -9,7 +9,7 @@ import {
 
 const router = Router();
 
-router.route("/addTocart/:productId").get(AcessTokenverifyJWT, addTocart);
+router.route("/addTocart").post(AcessTokenverifyJWT, addTocart);
 
 router.route("/removeCart/:productId").get(AcessTokenverifyJWT);
 

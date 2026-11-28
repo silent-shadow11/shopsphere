@@ -55,7 +55,7 @@ const generatedAcessToken = async (refreshToken) => {
 
   const AcessToken = jwt.sign(
     {
-      sessiondId: session._id,
+      sessionId: session._id,
       id: user._id,
       username: user.username,
       email: user.email,
@@ -92,6 +92,56 @@ const generatedRefreshToken = async (req, userid) => {
   });
   return { refreshToken, hashedRefreshToken, session };
 };
+
+const rotateRefreshAcessToken = async (session) => {
+  const refreshToken = jwt.sign(
+    {
+      id: session.user,
+      sessionId: session._id,
+    },
+    process.env.REFRESH_TOKEN_SECRET,
+    {
+      expiresIn: process.env.REFRESH_TOKEN_EXPIRY,
+    },
+  );
+  
+
+  const hashedRefreshToken = crypto
+    .createHash("sha256")
+    .update(refreshToken)
+    .digest("hex");
+
+  session.refreshTokenHash = hashedRefreshToken;
+  await session.save();
+
+  const accessToken = await generatedAcessToken(refreshToken);
+
+  return { refreshToken, accessToken };
+};
+
+const verifyUser = asyncHandler(async (req, res) => {
+  const { refreshToken, accessToken } =
+    await rotateRefreshAcessToken(req.session);
+    
+  return res
+    .cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    })
+    .cookie("accessToken", accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 15 * 60 * 1000,
+    })
+    .status(200)
+    .json({
+      success: true,
+      message: "Tokens rotated successfully",
+    });
+});
 
 const sendOtptoUser = asyncHandler(async (req, res) => {
   const { username, email, password, fullname, role } = req.body;
@@ -231,13 +281,11 @@ const registerUser = asyncHandler(async (req, res) => {
     .status(200)
     .cookie("refreshToken", refreshToken, {
       httpOnly: true,
-      secure: true,
       samesite: "strict",
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 day
     })
     .cookie("accessToken", accessToken, {
       httpOnly: true,
-      secure: true,
       samesite: "strict",
       maxAge: 1 * 24 * 60 * 60 * 1000, // 1 day
     })
@@ -260,10 +308,6 @@ const registerUser = asyncHandler(async (req, res) => {
 });
 
 const loginUser = asyncHandler(async (req, res) => {
-  if (req.user) {
-    logoutUser(req, res);
-  }
-
   const { email, password } = req?.body;
   if (!email || !password) {
     throw new Apierror(401, "email and password are required");
@@ -277,7 +321,7 @@ const loginUser = asyncHandler(async (req, res) => {
     user = await User.findOne({
       email: email,
       password: PasswordHash,
-    }).select('-password');
+    }).select("-password");
   } catch (error) {
     throw new Apierror(500, "Database Error..");
   }
@@ -297,17 +341,15 @@ const loginUser = asyncHandler(async (req, res) => {
     .status(200)
     .cookie("refreshToken", refreshToken, {
       httpOnly: true,
-      secure: true,
       samesite: "strict",
       maxAge: 7 * 24 * 60 * 60 * 1000, //
     })
     .cookie("accessToken", accessToken, {
       httpOnly: true,
-      secure: true,
       samesite: "strict",
       maxAge: 1 * 24 * 60 * 60 * 1000, //
     })
-    .json(new ApiResponse(200,user, "user login sucessfully..."));
+    .json(new ApiResponse(200, user, "user login sucessfully..."));
 });
 
 const logoutUser = asyncHandler(async (req, res) => {
@@ -358,7 +400,6 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
     .status(200)
     .cookie("accessToken", accessToken, {
       httpOnly: true,
-      secure: true,
       sameSite: "strict",
       maxAge: 1 * 24 * 60 * 60 * 1000, //
     })
@@ -409,6 +450,7 @@ const changeCurrentPassword = asyncHandler(async (req, res) => {
 
 const getCurrentUser = asyncHandler(async (req, res) => {
   const user = await User.findById(req.user._id).select("-password");
+
   if (!user) {
     throw new Apierror(404, "User do not find...");
   }
@@ -430,4 +472,6 @@ export {
   getCurrentUser,
   registerUser,
   verifyOtp,
+  rotateRefreshAcessToken,
+  verifyUser
 };

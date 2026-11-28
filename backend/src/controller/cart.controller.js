@@ -5,7 +5,9 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 
 const addTocart = asyncHandler(async (req, res) => {
-  const { productId } = req?.params;
+  const { productId } = req?.body;
+
+  
 
   if (!productId) {
     throw new Apierror(400, "Product Id is required..");
@@ -26,7 +28,7 @@ const addTocart = asyncHandler(async (req, res) => {
 
   let cart = await Cart.findOne({
     user: req.user._id,
-  });
+  }).populate("items.product");
 
   if (!cart) {
     cart = await Cart.create({
@@ -39,7 +41,7 @@ const addTocart = asyncHandler(async (req, res) => {
         },
       ],
       totalprice: price,
-    });
+    }).populate("items.product");
   } else {
     const existingItem = cart.items.find(
       (item) => item.product.toString() === productId,
@@ -163,13 +165,16 @@ const updateTocart = asyncHandler(async (req, res) => {
 });
 
 const getcart = asyncHandler(async (req, res) => {
+
+  
   const user = req?.user;
   if (!user) {
     throw new Apierror(404, "user not found..");
   }
 
   const cart = await Cart.findOne({ user: user._id }).populate("items.product");
-
+  console.log(cart);
+  
   return res
     .status(200)
     .json(new ApiResponse(200, cart, "cart fetch sucessfully..."));

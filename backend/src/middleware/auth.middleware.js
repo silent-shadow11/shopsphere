@@ -4,12 +4,13 @@ import { Apierror } from "../utils/ApiError.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import jwt from "jsonwebtoken";
 
+
 export const AcessTokenverifyJWT = asyncHandler(async (req, _, next) => {
   try {
     const token =
       req.cookies?.accessToken ||
       req.header("Authorization")?.replace("Bearer", "");
-
+    
     if (!token) {
       throw new Apierror(401,"acess token required...")
     }
@@ -23,7 +24,7 @@ export const AcessTokenverifyJWT = asyncHandler(async (req, _, next) => {
     }
 
     const session = await Session.findOne({
-      id: decodedToken.sessionId,
+      _id: decodedToken.sessionId,
       user: decodedToken?.id,
       revoked: false,
     });
@@ -40,32 +41,47 @@ export const AcessTokenverifyJWT = asyncHandler(async (req, _, next) => {
   }
 });
 
-export const RefreshTokenverifyJWT = asyncHandler(async (req, res, next) => {
-  const token =
-    req.cookies?.refreshToken ||
-    req.header("Authorization")?.replace("Bearer", "");
+export const RefreshTokenverifyJWT = asyncHandler(
+  async (req, res, next) => {
+    const token = req.cookies?.refreshToken;
+    
 
-  if (!token) {
-    throw new Apierror(404, "token are required..");
-  }
-  const decodedToken = jwt.verify(token, process.env.REFRESH_TOKEN_SECRET);
+    if (!token) {
+      throw new Apierror(401, "Refresh token required");
+    }
 
-  const user = await User.findById(decodedToken?._id).select(
-    "-password -refreshToken",
-  );
-  if (!user) {
-    throw new Apierror(401, "Invalid Acess Token");
-  }
+    const decodedToken = jwt.verify(
+      token,
+      process.env.REFRESH_TOKEN_SECRET
+    );
 
-  const session = await Session.findOne({
-    id: decodedToken?.sessionId,
-    user: decodedToken?.id,
-    revoked: false,
-  });
-  if (!session) {
-    throw new Apierror(404, "user session are expiry..");
+
+    
+
+    const user = await User.findById(decodedToken?.id).select(
+      "-password -refreshToken"
+    );;
+    
+
+    if (!user) {
+      throw new Apierror(401, "Invalid refresh token");
+    }
+
+    const session = await Session.findOne({
+      _id: decodedToken?.sessionId,
+      user: decodedToken?.id,
+      revoked: false,
+    });
+
+    
+    if (!session) {
+      throw new Apierror(401, "Session expired or revoked");
+    }
+
+    req.session = session;
+    req.user = user;
+    
+    
+    next();
   }
-  req.session = session;
-  req.user = user;
-  next();
-});
+);

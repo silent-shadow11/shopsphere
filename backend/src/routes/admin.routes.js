@@ -3,7 +3,7 @@ import { upload } from "../middleware/multer.middleware.js";
 import {
   AddProductImage,
   DeleteProductImage,
-  getAllProduct,
+
   productAdd,
   productRemove,
   SetDiscountprice,

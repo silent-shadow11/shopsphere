@@ -393,28 +393,28 @@ const updateStock = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, product, "Stock updated sucessfully..."));
 });
 
-const getAllProduct = asyncHandler(async (req, res) => {
-  const user = req?.user;
-  if (!user) {
-    throw new Apierror(401, "user is required..");
-  }
+// const getAllProduct = asyncHandler(async (req, res) => {
+//   const user = req?.user;
+//   if (!user) {
+//     throw new Apierror(401, "user is required..");
+//   }
 
-  if (user.role !== "admin") {
-    throw new Apierror(403, "user should be admin");
-  }
+//   if (user.role !== "admin") {
+//     throw new Apierror(403, "user should be admin");
+//   }
 
-  const product = await Product.find({
-    admin: user._id,
-  });
+//   const product = await Product.find({
+//     admin: user._id,
+//   });
 
-  if (!product) {
-    throw new Apierror(404, "Product not found..");
-  }
+//   if (!product) {
+//     throw new Apierror(404, "Product not found..");
+//   }
 
-  return res
-    .status(200)
-    .json(new ApiResponse(200, product, "Product fetch sucessfully.."));
-});
+//   return res
+//     .status(200)
+//     .json(new ApiResponse(200, product, "Product fetch sucessfully.."));
+// });
 
 export {
   productAdd,
@@ -424,5 +424,5 @@ export {
   AddProductImage,
   DeleteProductImage,
   updateStock,
-  getAllProduct
+  
 };

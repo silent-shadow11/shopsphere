@@ -9,9 +9,10 @@ import {
   registerUser,
   sendOtptoUser,
   verifyOtp,
+  verifyUser,
 } from "../controller/auth.controller.js";
 import { upload } from "../middleware/multer.middleware.js";
-import { AcessTokenverifyJWT } from "../middleware/auth.middleware.js";
+import { AcessTokenverifyJWT, RefreshTokenverifyJWT } from "../middleware/auth.middleware.js";
 import {
   getCart,
   getmyOrder,
@@ -19,8 +20,7 @@ import {
   UpdateRating,
   updateUserAvatar,
 } from "../controller/user.controller.js";
-import { getAllProduct } from "../controller/seller_product.controller.js";
-import { getAllCategory } from "../controller/category.controller.js";
+import { getAllCategory, getAllProduct, ProductDetails } from "../controller/category.controller.js";
 import { isMatched } from "../utils/MatchOtp.js";
 
 const router = Router();
@@ -55,6 +55,8 @@ router
 
 router.route("/getCurrentUser").get(AcessTokenverifyJWT, getCurrentUser);
 
+router.route("/verifyUser").get(RefreshTokenverifyJWT,verifyUser)
+
 // user field .....
 
 router
@@ -76,12 +78,14 @@ router
   .route("/UpdateRating/:productId")
   .post(AcessTokenverifyJWT, UpdateRating);
 
-router.route("/getallproduct").get(AcessTokenverifyJWT, getAllProduct);
+router.route("/getallproduct").get(getAllProduct);
 
-router.route("/getallCategory").get(AcessTokenverifyJWT, getAllCategory);
+router.route("/getallCategory").get( getAllCategory);
 
 router.route("/getallorder").get(AcessTokenverifyJWT, getmyOrder);
 
 router.route("/getcart").get(AcessTokenverifyJWT, getCart);
+
+router.route("/product/:id").get(ProductDetails)
 
 export default router;

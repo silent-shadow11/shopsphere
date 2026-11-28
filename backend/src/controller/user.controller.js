@@ -139,6 +139,7 @@ const getmyOrder = asyncHandler(async (req, res) => {
 
 const getCart = asyncHandler(async (req, res) => {
   const user = req?.user;
+  
   if (!user) {
     throw new Apierror(401, "user is required...");
   }
