@@ -11,58 +11,68 @@ import Order from "../components/Home/user/Order.jsx";
 import Adress from "../components/Home/user/Adress.jsx";
 import Cart from "../components/Home/user/Cart.jsx";
 import AddProduct from "../components/Home/admin/addProduct.jsx";
+import ProductDetails from "../components/features/productDetails.jsx";
+import Categories from "../components/features/categories.jsx";
 
-const router=createBrowserRouter([
-    {
-        path:"/",
-        element:<Layout/>,
-        children:[
-            {
-                index:true,
-                element:<Home/>
-            },
-            {
-                path:"/login",
-                element:<Login/>
-            },
-            {
-                path:"/signin",
-                element:<Signin/>
-            },
-            {
-                path:"/signout",
-                element:<Signout/>
-            },
-            {
-                path:"/profile",
-                element:<Profile/>
-            },
-            {
-                path:"/shop",
-                element:<Shop/>
-            },
-            {
-                path:"/myorder",
-                element:<Order/>
-            },
-            {
-                path:"/savedAdress",
-                element:<Adress/>
-            },
-            {
-                path:"/bag",
-                element:<Cart/>
-            },
-            {
-                path:"/admin",
-                element:<AdminHome/>
-            },
-            {
-                path:"/addToProduct",
-                element:<AddProduct/>
-            }
-        ]
-    }
-])
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <Layout />,
+    children: [
+      {
+        index: true,
+        element: <Home />,
+      },
+      {
+        path: "/login",
+        element: <Login />,
+      },
+      {
+        path: "/signin",
+        element: <Signin />,
+      },
+      {
+        path: "/signout",
+        element: <Signout />,
+      },
+      {
+        path: "/profile",
+        element: <Profile />,
+      },
+      {
+        path: "/shop",
+        element: <Shop />,
+      },
+      {
+        path: "/myorder",
+        element: <Order />,
+      },
+      {
+        path: "/savedAdress",
+        element: <Adress />,
+      },
+      {
+        path: "/bag",
+        element: <Cart />,
+      },
+      {
+        path: "/admin",
+        element: <AdminHome />,
+      },
+      {
+        path: "/addToProduct",
+        element: <AddProduct />,
+      },
+      {
+        path: "/productDetails/:id",
+        element: <ProductDetails />,
+      },
+      {
+        path:"/categories",
+        element:<Categories/>
+      }
+    ],
+  },
+]);
 
-export default router
+export default router;

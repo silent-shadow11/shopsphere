@@ -16,7 +16,7 @@ function Navbar() {
         </Link>
         <div className="hidden items-center gap-8 text-sm font-medium text-stone-600 md:flex">
           <Link to='/shop' className="transition hover:text-[#064E3B]">Shop</Link>
-          <a className="transition hover:text-[#064E3B]" href="#categories">Categories</a>
+          <Link to="/categories" className="transition hover:text-[#064E3B]" >Categories</Link>
           <a className="transition hover:text-[#064E3B]" href="#about">About</a>
         </div>
         <div className="flex items-center gap-3">

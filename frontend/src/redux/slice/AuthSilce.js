@@ -2,7 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const initialState={
     profile:null,
-    cart:null,
+    cart:[],
     login:false,
     order:{},
     loading:false
@@ -35,7 +35,8 @@ export const {
     setProfile,
     setLogin,
     setCart,
-    setOrder
+    setOrder,
+    setLoading
 }=authSilce.actions
 
 export default authSilce.reducer

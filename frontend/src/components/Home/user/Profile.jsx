@@ -7,6 +7,7 @@ function Profile() {
   const email = profile?.email || "";
   const fullname = profile?.fullname || "";
   const avater = profile?.avater || "";
+  
 
   return (
     <main className="min-h-screen bg-[#F7F6F2] px-5 py-10 sm:px-8 sm:py-16">
@@ -129,7 +130,7 @@ function Profile() {
                 Keep exploring thoughtful pieces made for everyday life.
               </p>
               <a
-                href="#shop"
+                href="/shop"
                 className="mt-6 inline-flex rounded-full bg-white px-5 py-3 text-sm font-medium text-[#064E3B] transition hover:bg-[#F7F6F2]"
               >
                 Explore the collection
